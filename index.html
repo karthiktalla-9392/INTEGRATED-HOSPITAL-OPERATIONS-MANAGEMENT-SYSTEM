@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraHealth Zenith | Next-Gen Wellness</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="loginPage">
+    <div class="login-box">
+        <h1 style="color:var(--brand); margin-bottom: 5px;">AuraHealth Zenith</h1>
+        <p style="color:#64748b; margin-bottom: 30px;" id="authTitle">Premium Healthcare Intelligence</p>
+        
+        <div id="loginFields">
+            <input id="username" placeholder="Patient ID / Username">
+            <input id="password" type="password" placeholder="Secure Password">
+            <select id="role">
+                <option>Patient Portal</option>
+                <option>Doctor Console</option>
+                <option>Admin Node</option>
+            </select>
+            <button class="btn btn-brand" style="width:100%" onclick="login()">Enter Zenith</button>
+            <p style="margin-top:15px; font-size:14px;">New to AuraHealth? <a href="#" onclick="toggleAuth(true)" class="auth-link">Register Now</a></p>
+        </div>
+
+        <div id="registerFields" style="display:none">
+            <input id="regName" placeholder="Full Name">
+            <input id="regEmail" placeholder="Email Address">
+            <input id="regPass" type="password" placeholder="Create Password">
+            <input id="regPhone" placeholder="Mobile Number">
+            <button class="btn btn-brand" style="width:100%" onclick="register()">Create Account</button>
+            <p style="margin-top:15px; font-size:14px;">Already have an account? <a href="#" onclick="toggleAuth(false)" class="auth-link">Login</a></p>
+        </div>
+        
+        <p id="loginMsg" class="error-text"></p>
+    </div>
+</div>
+
+<div id="app" style="display:none">
+    <header>
+        <div class="logo">AuraHealth <span style="color:var(--brand)">Zenith</span></div>
+        <div class="header-actions">
+            <button class="btn btn-sos" onclick="alert('Emergency Services Notified.')">🆘 SOS</button>
+            <div id="cartCount" class="badge">🛒 Cart: 0</div>
+            <button class="btn btn-terminate" onclick="location.reload()">Terminate Session</button>
+        </div>
+    </header>
+
+    <div id="nexus-container">
+        <nav class="sidebar">
+            <button class="nav-btn active" onclick="show('dash')">📊 Overview</button>
+            <button class="nav-btn" onclick="show('pharmacy')">💊 Zenith Pharmacy</button>
+            <button class="nav-btn" onclick="show('video')">📹 Live Consultation</button>
+            <button class="nav-btn" onclick="show('appointments')">📅 Appointments</button>
+            <button class="nav-btn" onclick="show('labs')">🧪 Lab Reports</button>
+            <button class="nav-btn" onclick="show('billing')">🧾 Billing & UPI</button>
+            <button class="nav-btn" onclick="show('ai')">🧠 AI Symptom Hub</button>
+            <div style="flex-grow:1"></div>
+            <div class="zenith-tip">
+                <strong style="color:var(--brand)">Zenith Tip:</strong><br>
+                Drink 500ml of water now to maintain optimal cellular hydration.
+            </div>
+            <div class="version-tag">Zenith OS V.5.1.0 Stable</div>
+        </nav>
+
+        <main class="main-content">
+            <div id="dash" class="tab-view">
+                <div class="grid-3">
+                    <div class="stat-card blue"><h3>4</h3><p>Consultations Today</p></div>
+                    <div class="stat-card green"><h3>₹ 12,450</h3><p>Wallet Balance</p></div>
+                    <div class="stat-card indigo"><h3>98%</h3><p>Zenith Wellness Score</p></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Biometric Trends</h3>
+                        <select class="small-select" onchange="alert('Fetching Historical Data...')">
+                            <option>Last 7 Days</option>
+                            <option>Last 30 Days</option>
+                        </select>
+                    </div>
+                    <canvas id="mainChart" height="100"></canvas>
+                </div>
+            </div>
+
+            <div id="pharmacy" class="tab-view" style="display:none">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Pharmacy Inventory</h2>
+                        <input type="text" placeholder="Search medicine..." class="search-bar" onkeyup="alert('Searching Inventory...')">
+                    </div>
+                    <table class="med-table">
+                        <thead>
+                            <tr><th>Medicine Name</th><th>Category</th><th>Dosage</th><th>Price</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="medList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="video" class="tab-view" style="display:none">
+                <div class="card">
+                    <h2>Zenith-Live Tele-Consult</h2>
+                    <div class="video-box" id="callArea">
+                        <p id="callStatus">No active encrypted session.</p>
+                        <div class="video-overlay" id="callControls" style="display:none">
+                            <button class="btn ctrl-btn-end" onclick="endCall()">📵</button>
+                            <button class="btn ctrl-btn">🎙️</button>
+                            <button class="btn ctrl-btn">📷</button>
+                        </div>
+                    </div>
+                    <div class="consult-form">
+                        <select id="videoDoc">
+                            <option>Dr. Rajesh Sharma (Cardiology)</option>
+                            <option>Dr. Sarah Miller (Psychiatry)</option>
+                            <option>Dr. Priya Patel (Endocrinology)</option>
+                            <option>Dr. Elena Vance (Neurology)</option>
+                        </select>
+                        <button class="btn btn-brand" onclick="startCall()">Initiate Encrypted Consultation</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="labs" class="tab-view" style="display:none">
+                <div class="card">
+                    <h2>Diagnostic Vault</h2>
+                    <div id="labList">
+                        <div class="report-item">
+                            <div><strong>Full Blood Count</strong><br><small>Mar 05, 2026</small></div>
+                            <button class="btn btn-brand" onclick="genLabReport('Blood Count', 'Normal')">Download PDF</button>
+                        </div>
+                        </div>
+                </div>
+            </div>
+
+            <div id="billing" class="tab-view" style="display:none">
+                <div class="card">
+                    <h2>Secure Payments</h2>
+                    <div id="billSummary" style="margin-bottom:20px;"></div>
+                    <div class="pay-grid">
+                        <div class="pay-option" onclick="pay('UPI')">
+                            <strong>UPI / Google Pay</strong>
+                            <div id="qrNode" style="display:none; margin-top:15px;">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ZENITH_PAY" alt="QR">
+                                <p>Scan & Pay Now</p>
+                            </div>
+                        </div>
+                        <div class="pay-option secondary" onclick="pay('COD')">
+                            <strong>Cash on Delivery</strong>
+                            <p>Pay at Doorstep</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="appointments" class="tab-view" style="display:none">
+                <div class="card">
+                    <h2>Book Specialist</h2>
+                    <input id="aname" placeholder="Patient Name">
+                    <select id="doctor">
+                        <option>Dr. Rajesh Sharma (Cardiology)</option>
+                        <option>Dr. Elena Vance (Neurology)</option>
+                    </select>
+                    <input type="datetime-local" id="apptTime">
+                    <button class="btn btn-brand" onclick="book()">Confirm Slot</button>
+                </div>
+                <div class="card">
+                    <h3>Active Queue</h3>
+                    <table class="med-table" id="atable"></table>
+                </div>
+            </div>
+
+            <div id="ai" class="tab-view" style="display:none">
+                <div class="card">
+                    <h2>Zenith-AI Symptom Engine</h2>
+                    <p>Advanced neural mapping for preliminary diagnosis.</p>
+                    <textarea id="aiInput" rows="4" placeholder="Describe symptoms..."></textarea>
+                    <button class="btn btn-brand" onclick="runAI()">Execute AI Analysis</button>
+                    <div id="aiOut" class="ai-output-box" style="display:none"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
