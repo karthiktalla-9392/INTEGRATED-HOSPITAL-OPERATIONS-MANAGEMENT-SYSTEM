@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraHealth Zenith | Next-Gen Wellness</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #0f172a;
+            --brand: #8b5cf6; /* Changed to a sleek violet brand color */
+            --brand-soft: #ede9fe;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #f8fafc;
+            --card: #ffffff;
+        }
+
+        * { box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
+        body { margin: 0; background: var(--bg); color: var(--primary); }
+
+        /* --- LOGIN & REGISTER PAGE --- */
+        #loginPage {
+            height: 100vh; display: flex; justify-content: center; align-items: center;
+            background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(139, 92, 246, 0.5)), url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80');
+            background-size: cover;
+        }
+        .login-box {
+            background: rgba(255, 255, 255, 0.98); padding: 40px; border-radius: 28px;
+            width: 420px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+
+        /* --- APP LAYOUT --- */
+        #app { display: grid; grid-template-columns: 280px 1fr; height: 100vh; }
+        .sidebar { background: var(--primary); color: white; padding: 25px; display: flex; flex-direction: column; }
+        .sidebar h2 { color: var(--brand); font-size: 1.6rem; letter-spacing: -1px; margin-bottom: 30px; }
+        
+        .nav-btn {
+            background: transparent; color: #94a3b8; border: none; padding: 14px 18px;
+            text-align: left; border-radius: 12px; cursor: pointer; transition: 0.3s;
+            font-size: 0.95rem; font-weight: 500; margin-bottom: 5px;
+        }
+        .nav-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav-btn.active { background: var(--brand); color: white; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); }
+
+        .main-content { overflow-y: auto; padding: 35px; }
+        header { 
+            background: white; padding: 18px 40px; border-bottom: 1px solid #e2e8f0;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        /* --- UI CARDS --- */
+        .card { background: var(--card); border-radius: 20px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 25px; }
+        
+        .stat-card { padding: 25px; border-radius: 16px; color: white; position: relative; overflow: hidden; }
+        .blue { background: #6366f1; }
+        .green { background: #10b981; }
+        .indigo { background: #8b5cf6; }
+
+        /* --- PHARMACY --- */
+        .med-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
+        .med-table th { background: #f8fafc; padding: 15px; text-align: left; font-size: 13px; color: #64748b; }
+        .med-table td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        .category-tag { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .cat-pain { background: #fee2e2; color: #ef4444; }
+        .cat-antibiotic { background: #dcfce7; color: #16a34a; }
+        .cat-chronic { background: #e0f2fe; color: #0284c7; }
+
+        /* --- VIDEO CONSULTATION --- */
+        .video-box { aspect-ratio: 16/9; background: #1e293b; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; position: relative; }
+        .video-overlay { position: absolute; bottom: 20px; display: flex; gap: 15px; }
+
+        /* --- LAB REPORTS --- */
+        .report-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 10px; }
+
+        /* --- BUTTONS & INPUTS --- */
+        .btn { padding: 12px 24px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-brand { background: var(--brand); color: white; }
+        .btn-brand:hover { background: #7c3aed; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 10px; outline: none; }
+        input:focus { border-color: var(--brand); box-shadow: 0 0 0 2px var(--brand-soft); }
+    </style>
+</head>
+<body>
+
+<div id="loginPage">
+    <div class="login-box">
+        <h1 style="color:var(--brand); margin-bottom: 5px;">AuraHealth Zenith</h1>
+        <p style="color:#64748b; margin-bottom: 30px;" id="authTitle">Premium Healthcare Intelligence</p>
+        
+        <div id="loginFields">
+            <input id="username" placeholder="Patient ID / Username">
+            <input id="password" type="password" placeholder="Secure Password">
+            <select id="role">
+                <option>Patient Portal</option>
+                <option>Doctor Console</option>
+                <option>Admin Node</option>
+            </select>
+            <button class="btn btn-brand" style="width:100%" onclick="login()">Enter Zenith</button>
+            <p style="margin-top:15px; font-size:14px;">New to AuraHealth? <a href="#" onclick="toggleAuth(true)" style="color:var(--brand); text-decoration:none; font-weight:bold;">Register Now</a></p>
+        </div>
+
+        <div id="registerFields" style="display:none">
+            <input id="regName" placeholder="Full Name">
+            <input id="regEmail" placeholder="Email Address">
+            <input id="regPass" type="password" placeholder="Create Password">
+            <input id="regPhone" placeholder="Mobile Number">
+            <button class="btn btn-brand" style="width:100%" onclick="register()">Create Account</button>
+            <p style="margin-top:15px; font-size:14px;">Already have an account? <a href="#" onclick="toggleAuth(false)" style="color:var(--brand); text-decoration:none; font-weight:bold;">Login</a></p>
+        </div>
+        
+        <p id="loginMsg" style="color:var(--danger); font-size: 14px; margin-top:15px;"></p>
+    </div>
+</div>
+
+<div id="app" style="display:none">
+    <header>
+        <div style="font-weight: 800; font-size: 1.4rem; color: var(--primary);">AuraHealth <span style="color:var(--brand)">Zenith</span></div>
+        <div style="display:flex; align-items:center; gap:25px;">
+            <button class="btn" style="background:#fff1f2; color:var(--danger); border:1px solid #fecaca; font-size:12px;" onclick="alert('Emergency Services Notified. Stay on the line.')">🆘 SOS</button>
+            <div id="cartCount" style="background:var(--brand); padding:6px 16px; border-radius:30px; color:white; font-size:12px; font-weight:700;">🛒 Cart: 0</div>
+            <button class="btn" style="background:var(--danger); color:white; padding:8px 18px; font-size: 13px;" onclick="location.reload()">Terminate Session</button>
+        </div>
+    </header>
+
+    <div id="nexus-container" style="display:flex; height: calc(100vh - 70px);">
+        <div class="sidebar">
+            <button class="nav-btn active" onclick="show('dash')">📊 Overview</button>
+            <button class="nav-btn" onclick="show('pharmacy')">💊 Zenith Pharmacy</button>
+            <button class="nav-btn" onclick="show('video')">📹 Live Consultation</button>
+            <button class="nav-btn" onclick="show('appointments')">📅 Appointments</button>
+            <button class="nav-btn" onclick="show('labs')">🧪 Lab Reports</button>
+            <button class="nav-btn" onclick="show('billing')">🧾 Billing & UPI</button>
+            <button class="nav-btn" onclick="show('ai')">🧠 AI Symptom Hub</button>
+            <div style="flex-grow:1"></div>
+            <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; font-size:12px; margin-bottom:15px;">
+                <strong style="color:var(--brand)">Zenith Tip:</strong><br>
+                Drink 500ml of water now to maintain optimal cellular hydration.
+            </div>
+            <div style="font-size:11px; color:#64748b; padding:10px;">Zenith OS V.5.1.0 Stable</div>
+        </div>
+
+        <div class="main-content">
+            <div id="dash" class="tab-view">
+                <div class="grid-3">
+                    <div class="stat-card blue"><h3>4</h3><p>Consultations Today</p></div>
+                    <div class="stat-card green"><h3>₹ 12,450</h3><p>Wallet Balance</p></div>
+                    <div class="stat-card indigo"><h3>98%</h3><p>Zenith Wellness Score</p></div>
+                </div>
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center">
+                        <h3>Biometric Trends</h3>
+                        <select style="width:auto; font-size:12px;" onchange="alert('Fetching Historical Data...')">
+                            <option>Last 7 Days</option>
+                            <option>Last 30 Days</option>
+                        </select>
+                    </div>
+                    <canvas id="mainChart" height="100"></canvas>
+                </div>
+            </div>
+
+            <div id="pharmacy" class="tab-view" style="display:none">
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <h2>Pharmacy Inventory</h2>
+                        <input type="text" placeholder="Search medicine..." style="width:250px; margin:0;" onkeyup="alert('Searching Inventory...')">
+                    </div>
+                    <table class="med-table">
+                        <thead>
+                            <tr><th>Medicine Name</th><th>Category</th><th>Dosage</th><th>Price</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="medList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="video" class="tab-view" style="display:none">
+                <div class="card">
+                    <h2>Zenith-Live Tele-Consult</h2>
+                    <div class="video-box" id="callArea">
+                        <p id="callStatus">No active encrypted session.</p>
+                        <div class="video-overlay" id="callControls" style="display:none">
+                            <button class="btn" style="background:var(--danger); border-radius:50%; width:50px; height:50px;" onclick="endCall()">📵</button>
+                            <button class="btn" style="background:#475569; border-radius:50%; width:50px; height:50px;">🎙️</button>
+                            <button class="btn" style="background:#475569; border-radius:50%; width:50px; height:50px;">📷</button>
+                        </div>
+                    </div>
+                    <div style="margin-top:20px;">
+                        <select id="videoDoc">
+                            <option>Dr. Rajesh Sharma (Cardiology)</option>
+                            <option>Dr. Sarah Miller (Psychiatry)</option>
+                            <option>Dr. Priya Patel (Endocrinology)</option>
+                             <option>Dr. Amit Singh (Oncology)</option>
+                        <option>Dr. Elena Vance (Neurology)</option>
+                        <option>Dr. Samuel Lee (Orthopedics)</option>
+                        <option>Dr. Linda Wu (Gastroenterology)</option>
+                        </select>
+                        <button class="btn btn-brand" onclick="startCall()">Initiate Encrypted Consultation</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="labs" class="tab-view" style="display:none">
+                <div class="card">
+                    <h2>Diagnostic Vault</h2>
+                    <div class="report-item">
+                        <div><strong>Full Blood Count</strong><br><small>Mar 05, 2026</small></div>
+                        <button class="btn btn-brand" onclick="genLabReport('Blood Count', 'Normal')">Download PDF</button>
+                    </div>
+                    <div class="report-item">
+                        <div><strong>Lipid Profile</strong><br><small>Feb 28, 2026</small></div>
+                        <button class="btn btn-brand" onclick="genLabReport('Lipid Profile', 'High Cholesterol')">Download PDF</button>
+                    </div>
+                    <div class="report-item">
+                        <div><strong>Brain MRI Scan</strong><br><small>Jan 15, 2026</small></div>
+                        <button class="btn" style="background:#94a3b8; color:white;" onclick="alert('Large file: Initiating Secure FTP Download...')">Archive View</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="billing" class="tab-view" style="display:none">
+                <div class="card">
+                    <h2>Secure Payments</h2>
+                    <div id="billSummary" style="margin-bottom:20px;"></div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                        <div style="border: 2px solid var(--brand-soft); padding:20px; border-radius:15px; text-align:center; cursor:pointer;" onclick="pay('UPI')">
+                            <strong>UPI / Google Pay</strong>
+                            <div id="qrNode" style="display:none; margin-top:15px;">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ZENITH_PAY" alt="QR">
+                                <p>Scan & Pay Now</p>
+                            </div>
+                        </div>
+                        <div style="border: 2px solid #e2e8f0; padding:20px; border-radius:15px; text-align:center; cursor:pointer;" onclick="pay('COD')">
+                            <strong>Cash on Delivery</strong>
+                            <p>Pay at Doorstep</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="appointments" class="tab-view" style="display:none">
+                <div class="card">
+                    <h2>Book Specialist</h2>
+                    <input id="aname" placeholder="Patient Name">
+                    <select id="doctor">
+                        <option>Dr. Rajesh Sharma (Cardiology)</option>
+                        <option>Dr. Sarah Miller (Psychiatry)</option>
+                        <option>Dr. Priya Patel (Endocrinology)</option>
+                        <option>Dr. Amit Singh (Oncology)</option>
+                        <option>Dr. Elena Vance (Neurology)</option>
+                        <option>Dr. Samuel Lee (Orthopedics)</option>
+                        <option>Dr. Linda Wu (Gastroenterology)</option>
+                    </select>
+                    <input type="datetime-local" id="apptTime" style="margin-bottom:15px;">
+                    <button class="btn btn-brand" onclick="book()">Confirm Slot</button>
+                </div>
+                <div class="card">
+                    <h3>Active Queue</h3>
+                    <table class="med-table" id="atable"></table>
+                </div>
+            </div>
+
+            <div id="ai" class="tab-view" style="display:none">
+                <div class="card">
+                    <h2>Zenith-AI Symptom Engine</h2>
+                    <p>Advanced neural mapping for preliminary diagnosis.</p>
+                    <textarea id="aiInput" rows="4" placeholder="Describe symptoms (e.g., 'Sharp chest pain', 'Persistent headache')..."></textarea>
+                    <button class="btn btn-brand" onclick="runAI()">Execute AI Analysis</button>
+                    <div id="aiOut" style="margin-top:20px; padding:20px; border-radius:15px; background:var(--brand-soft); display:none; border-left: 5px solid var(--brand);"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // AUTH LOGIC
+    function toggleAuth(isReg) {
+        document.getElementById('loginFields').style.display = isReg ? 'none' : 'block';
+        document.getElementById('registerFields').style.display = isReg ? 'block' : 'none';
+        document.getElementById('authTitle').innerText = isReg ? 'Join the Health Revolution' : 'Premium Healthcare Intelligence';
+    }
+
+    function register() {
+        const name = document.getElementById('regName').value;
+        if(name) {
+            alert(`Welcome to AuraHealth Zenith, ${name}! Your account is created.`);
+            toggleAuth(false);
+        } else {
+            document.getElementById('loginMsg').innerText = "Please fill all fields.";
+        }
+    }
+
+    const medicines = [
+        {n: "Paracetamol 500", c: "Pain", d: "1-0-1", p: 40},
+        {n: "Amoxicillin 250", c: "Antibiotic", d: "1-1-1", p: 120},
+        {n: "Metformin 500", c: "Chronic", d: "0-0-1", p: 95},
+        {n: "Atorvastatin 10", c: "Chronic", d: "0-0-1", p: 210},
+        {n: "Azithromycin 500", c: "Antibiotic", d: "1-0-0", p: 180},
+        {n: "Ibuprofen 400", c: "Pain", d: "1-0-1", p: 55},
+        {n: "Pantoprazole 40", c: "Gastric", d: "1-0-0", p: 70},
+        {n: "Cetirizine 10", c: "Allergy", d: "0-0-1", p: 35},
+        {n: "Amlodipine 5", c: "Chronic", d: "1-0-0", p: 110},
+        {n: "Telmisartan 40", c: "Chronic", d: "1-0-0", p: 140},
+        {n: "Vitamin D3", c: "Vitamin", d: "Weekly", p: 300},
+        {n: "Iron Supplement", c: "Vitamin", d: "1-0-0", p: 150},
+        {n: "Clopidogrel 75", c: "Chronic", d: "0-0-1", p: 220},
+        {n: "Omeprazole 20", c: "Gastric", d: "1-0-0", p: 60},
+        {n: "Lisinopril 10", c: "Chronic", d: "1-0-0", p: 130},
+        {n: "Alprazolam 0.5", c: "Mental", d: "0-0-1", p: 90},
+        {n: "Sertraline 50", c: "Mental", d: "1-0-0", p: 250},
+        {n: "Prednisone 5", c: "Steroid", d: "1-0-0", p: 45},
+        {n: "Gabapentin 300", c: "Neuropathic", d: "0-0-1", p: 280},
+        {n: "Montelukast 10", c: "Asthma", d: "0-0-1", p: 160}
+    ];
+
+    let cart = [];
+    let appts = [];
+
+    function login() {
+        const u = document.getElementById('username').value;
+        if(u) {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            render();
+        } else {
+            document.getElementById('loginMsg').innerText = "Access Denied. Provide Credentials.";
+        }
+    }
+
+    function show(id) {
+        document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).style.display = 'block';
+        
+        const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.innerText.toLowerCase().includes(id.toLowerCase()) || (id === 'dash' && b.innerText.includes('Overview')));
+        if(btn) btn.classList.add('active');
+        
+        if(id === 'billing') renderBill();
+    }
+
+    function render() {
+        const list = document.getElementById('medList');
+        list.innerHTML = medicines.map((m, i) => `
+            <tr>
+                <td><strong>${m.n}</strong></td>
+                <td><span class="category-tag cat-${m.c.toLowerCase()}">${m.c}</span></td>
+                <td>${m.d}</td>
+                <td>₹${m.p}</td>
+                <td><button class="btn btn-brand" style="padding:5px 10px; font-size:11px;" onclick="addCart(${i})">Add to Cart</button></td>
+            </tr>
+        `).join('');
+
+        initChart();
+    }
+
+    function addCart(i) {
+        cart.push(medicines[i]);
+        document.getElementById('cartCount').innerText = `🛒 Cart: ${cart.length}`;
+        // Notification feature
+        const toast = document.createElement('div');
+        toast.style = "position:fixed; bottom:20px; right:20px; background:var(--success); color:white; padding:10px 20px; border-radius:10px; z-index:1000";
+        toast.innerText = `${medicines[i].n} added to cart!`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+
+    function renderBill() {
+        let total = cart.reduce((s, x) => s + x.p, 0);
+        document.getElementById('billSummary').innerHTML = cart.map(x => `<p>${x.n} - ₹${x.p}</p>`).join('') + `<hr><h4>Total Due: ₹${total}</h4>`;
+    }
+
+    function pay(mode) {
+        if(mode === 'UPI') document.getElementById('qrNode').style.display = 'block';
+        else { alert("COD Confirmed. Order ID: AHZ-"+Math.random().toString(36).substr(2, 9).toUpperCase()); cart = []; show('dash'); }
+    }
+
+    function startCall() {
+        const doc = document.getElementById('videoDoc').value;
+        document.getElementById('callStatus').innerText = `Establishing Peer-to-Peer link with ${doc}...`;
+        setTimeout(() => {
+            document.getElementById('callStatus').innerHTML = `<img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=200" style="border-radius:50%; margin-bottom:15px; border:3px solid var(--brand);"><br>Connected with ${doc} <br><small style='color:var(--success)'>● End-to-End Encrypted</small>`;
+            document.getElementById('callControls').style.display = 'flex';
+        }, 2000);
+    }
+
+    function endCall() {
+        document.getElementById('callStatus').innerText = "Session Encrypted & Logged.";
+        document.getElementById('callControls').style.display = 'none';
+    }
+
+    function book() {
+        const name = document.getElementById('aname').value;
+        const doc = document.getElementById('doctor').value;
+        const time = document.getElementById('apptTime').value;
+        if(!name || !time) { alert("Please enter name and select time."); return; }
+        appts.push({name, doc, time: time.replace('T', ' ')});
+        const table = document.getElementById('atable');
+        table.innerHTML = '<tr><th>Patient</th><th>Specialist</th><th>Time</th><th>Status</th></tr>' + 
+            appts.map(a => `<tr><td>${a.name}</td><td>${a.doc}</td><td>${a.time}</td><td><b style="color:var(--success)">Confirmed</b></td></tr>`).join('');
+        alert("Zenith Appointment Confirmed.");
+    }
+
+    function runAI() {
+        const input = document.getElementById('aiInput').value.toLowerCase();
+        const out = document.getElementById('aiOut');
+        out.style.display = 'block';
+        out.innerHTML = "<em>Analyzing biological markers...</em>";
+        
+        setTimeout(() => {
+            if(input.includes('chest')) out.innerHTML = "<strong>Zenith-AI Alert:</strong> Potential Cardiac Distress. Critical Priority. Emergency response triggered.";
+            else if(input.includes('head')) out.innerHTML = "<strong>Zenith-AI Insight:</strong> Neurological strain detected. Suggested: Magnesium intake & Dim lighting. Monitor for 24 hours.";
+            else if(input.length < 5) out.innerHTML = "<strong>Error:</strong> Please provide more symptom detail for accurate neural mapping.";
+            else out.innerHTML = "<strong>Zenith-AI Insight:</strong> Analysis suggests common viral activity. Recommend: Zenith Pharmacy 'Immunity Pack' and 48hr rest.";
+        }, 1500);
+    }
+
+    function genLabReport(type, res) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(22);
+        doc.text("AuraHealth Zenith Diagnostics", 20, 20);
+        doc.setFontSize(14);
+        doc.text(`Report Type: ${type}`, 20, 40);
+        doc.text(`Zenith ID: ZN-${Math.floor(Math.random()*100000)}`, 20, 50);
+        doc.text(`Result Summary: ${res}`, 20, 70);
+        doc.text(`Timestamp: ${new Date().toLocaleString()}`, 20, 80);
+        doc.text(`Status: Digitally Verified by Zenith Core AI`, 20, 100);
+        doc.save(`${type}_Zenith_Report.pdf`);
+    }
+
+    function initChart() {
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                datasets: [{
+                    label: 'Oxygen Saturation (%)',
+                    data: [98, 97, 99, 98, 98],
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: false, min: 95 } }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
